@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>مشغّلة المفاعل | Nuclear Operator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* =================================================================
+       لوحة الألوان المعتمدة حصراً:
+       - Warm Ivory: #F7F4EB
+       - Deep Burgundy Purple: #2A101D (خلفية داكنة) / #3D182B (بطاقات) / #52203B
+       - Muted Gold: #C5A059 / #D9B56F
+       - Muted Olive: #6E755D / #828B6E
+       - Warm Gray: #241E21 (خلفية عميقة) / #383134 / #8C8287 / #DDD6CF
+       ================================================================= */
+    
+    :root {
+      --bg-dark: #1F151B;
+      --bg-surface: #2D1A25;
+      --bg-card: #38212F;
+      --bg-card-hover: #432838;
+      
+      --burgundy-deep: #4D1A33;
+      --burgundy-accent: #692245;
+      --burgundy-light: #8E3661;
+      
+      --gold-muted: #C5A059;
+      --gold-light: #DFC07E;
+      --gold-dark: #9A7B3E;
+      
+      --olive-muted: #747C62;
+      --olive-light: #8E9879;
+      --olive-dark: #535946;
+      
+      --ivory-warm: #F7F4EB;
+      --ivory-dim: #E3DEC3;
+      
+      --gray-warm: #282225;
+      --gray-border: #4D3D46;
+      --gray-text: #ABA0A6;
+      
+      --danger-burgundy: #8B202D;
+      
+      --font-main: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--ivory-warm);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* إطار اللمس للجوال */
+    button, input, select {
+      font-family: inherit;
+    }
+
+    /* ==================== 1. شاشة البداية ==================== */
+    #start-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #351A2B 0%, #1A0F17 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1000;
+      text-align: center;
+    }
+
+    .start-container {
+      max-width: 480px;
+      width: 100%;
+      background: rgba(45, 26, 37, 0.85);
+      border: 1px solid var(--gold-muted);
+      border-radius: 20px;
+      padding: 36px 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+    }
+
+    .emblem-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      border: 2px solid var(--gold-muted);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--burgundy-deep);
+    }
+
+    .emblem-icon svg {
+      width: 48px;
+      height: 48px;
+      fill: var(--gold-muted);
+    }
+
+    .start-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--ivory-warm);
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .start-subtitle {
+      font-size: 1rem;
+      color: var(--gold-light);
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .start-desc {
+      font-size: 0.95rem;
+      color: var(--ivory-dim);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .input-group {
+      margin-bottom: 24px;
+      text-align: right;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--gold-muted);
+      margin-bottom: 8px;
+    }
+
+    .operator-input {
+      width: 100%;
+      padding: 14px 18px;
+      background: #20131B;
+      border: 1px solid var(--gray-border);
+      border-radius: 12px;
+      color: var(--ivory-warm);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .operator-input:focus {
+      border-color: var(--gold-muted);
+    }
+
+    .btn-gold {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--gold-muted) 0%, var(--gold-dark) 100%);
+      color: #1F1219;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(197, 160, 89, 0.25);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-gold:active {
+      transform: scale(0.98);
+    }
+
+    /* ==================== 2. الواجهة الرئيسية لغرفة التحكم ==================== */
+    #control-room {
+      display: none; /* يظهر بعد البداية */
+      flex-direction: column;
+      flex: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 16px;
+      gap: 16px;
+    }
+
+    /* الشريط العلوي */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--gray-border);
+      border-radius: 16px;
+      padding: 12px 20px;
+    }
+
+    .operator-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--burgundy-deep);
+      border: 1px solid var(--gold-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-muted);
+      font-weight: bold;
+    }
+
+    .operator-info h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ivory-warm);
+    }
+
+    .operator-info p {
+      font-size: 0.8rem;
+      color: var(--gold-light);
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      background: var(--bg-card);
+      border: 1px solid var(--gray-border);
+      color: var(--ivory-warm);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* بطاقة الإرشاد التوجيهي (المهمة الحالية) */
+    .briefing-card {
+      background: linear-gradient(135deg, #371C2B 0%, #291520 100%);
+      border: 1px solid var(--gold-muted);
+      border-right: 6px solid var(--gold-muted);
+      border-radius: 16px;
+      padding: 16px 20px;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .briefing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .briefing-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .step-counter {
+      background: var(--burgundy-deep);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--ivory-dim);
+      border: 1px solid var(--gray-border);
+    }
+
+    .briefing-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ivory-warm);
+      margin-bottom: 6px;
+    }
+
+    .briefing-subtext {
+      font-size: 0.88rem;
+      color: var(--ivory-dim);
+      line-height: 1.5;
+    }
+
+    .briefing-feedback {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(20, 10, 16, 0.6);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--gold-light);
+      border-right: 3px solid var(--olive-muted);
+      display: none;
+    }
+
+    /* شبكة تخطيط غرفة التحكم */
+    .control-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 900px) {
+      .control-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* الرسم المركزي للمفاعل وقضبان التحكم */
+    .reactor-visual-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--gray-border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-title {
+      font-size: 0.9rem;
+      color: var(--gold-muted);
+      font-weight: 700;
+      margin-bottom: 12px;
+      width: 100%;
+      text-align: right;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .vessel-svg-wrap {
+      width: 100%;
+      max-width: 320px;
+      height: 250px;
+      position: relative;
+    }
+
+    /* بطاقات المؤشرات الستة */
+    .indicators-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 500px) and (max-width: 899px) {
+      .indicators-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+
+    .indicator-card {
+      background: var(--bg-card);
+      border: 1px solid var(--gray-border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color 0.3s;
+    }
+
+    .indicator-card.alert-state {
+      border-color: var(--danger-burgundy);
+      background: #3B1B25;
+    }
+
+    .indicator-card.safe-state {
+      border-color: var(--olive-muted);
+    }
+
+    .ind-title {
+      font-size: 0.8rem;
+      color: var(--gray-text);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ind-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--ivory-warm);
+      letter-spacing: -0.5px;
+    }
+
+    .ind-unit {
+      font-size: 0.8rem;
+      font-weight: normal;
+      color: var(--gold-light);
+      margin-right: 4px;
+    }
+
+    .ind-status {
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-top: 6px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      width: fit-content;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .status-subcritical { color: var(--gold-light); }
+    .status-critical { color: var(--olive-light); }
+    .status-supercritical { color: #E08585; }
+
+    .status-cold { color: var(--gold-light); }
+    .status-optimal { color: var(--olive-light); }
+    .status-warm { color: #E08585; }
+
+    /* ==================== 3. لوحة تحكم المشغّلة ==================== */
+    .controls-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--gray-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .control-label-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .control-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ivory-warm);
+    }
+
+    .control-reading {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gold-muted);
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-step {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--burgundy-deep);
+      border: 1px solid var(--gold-dark);
+      color: var(--ivory-warm);
+      font-size: 1.2rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.2s;
+    }
+
+    .btn-step:active {
+      background: var(--burgundy-accent);
+    }
+
+    .custom-range {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 10px;
+      background: #1A1016;
+      border-radius: 5px;
+      border: 1px solid var(--gray-border);
+      outline: none;
+    }
+
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--gold-muted);
+      border: 3px solid #201119;
+      cursor: pointer;
+      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+
+    .custom-range::-moz-range-thumb {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--gold-muted);
+      border: 3px solid #201119;
+      cursor: pointer;
+    }
+
+    /* زر تأكيد الإجراء */
+    .action-button-area {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .btn-confirm-action {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #7A5B2B 0%, #C5A059 50%, #9A7B3E 100%);
+      color: #170E13;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.15s, filter 0.2s;
+    }
+
+    .btn-confirm-action:active {
+      transform: scale(0.99);
+    }
+
+    .btn-confirm-action.pulse {
+      animation: gentle-pulse 2s infinite;
+    }
+
+    @keyframes gentle-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(197, 160, 89, 0); }
+    }
+
+    /* زر SCRAM */
+    .scram-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(139, 32, 45, 0.15);
+      border: 1px dashed var(--danger-burgundy);
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-top: 5px;
+    }
+
+    .scram-text {
+      font-size: 0.85rem;
+      color: var(--ivory-dim);
+    }
+
+    .scram-text strong {
+      color: #E88E99;
+      display: block;
+    }
+
+    .btn-scram {
+      background: linear-gradient(135deg, #6B1420 0%, #9E2637 100%);
+      border: 1px solid #D66D7C;
+      color: var(--ivory-warm);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      letter-spacing: 0.5px;
+      transition: transform 0.15s;
+    }
+
+    .btn-scram:active {
+      transform: scale(0.95);
+    }
+
+    /* ==================== 4. نافذة الإيقاف الطارئ (شرح الحرارة المتبقية) ==================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 10, 15, 0.88);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+
+    .modal-card {
+      max-width: 460px;
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--gold-muted);
+      border-radius: 20px;
+      padding: 26px;
+      text-align: right;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--gold-light);
+      margin-bottom: 12px;
+    }
+
+    .modal-body {
+      font-size: 0.95rem;
+      color: var(--ivory-dim);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .modal-body strong {
+      color: var(--ivory-warm);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* ==================== 5. شاشة النهاية والاحتفال بإضاءة جدة ==================== */
+    #celebration-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #3F1D30 0%, #150B11 100%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1500;
+      overflow-y: auto;
+      text-align: center;
+    }
+
+    .celebration-container {
+      max-width: 600px;
+      width: 100%;
+      background: rgba(45, 26, 37, 0.95);
+      border: 2px solid var(--gold-muted);
+      border-radius: 24px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .celebration-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--ivory-warm);
+      margin-bottom: 6px;
+    }
+
+    .celebration-operator {
+      font-size: 1.25rem;
+      color: var(--gold-light);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    /* أفق جدة التوضيحي الفاخر */
+    .jeddah-skyline-wrap {
+      width: 100%;
+      height: 190px;
+      background: #1E1219;
+      border: 1px solid var(--gold-muted);
+      border-radius: 16px;
+      margin: 16px 0 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .jeddah-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .stats-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--gray-border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--gold-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-num {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--ivory-warm);
+    }
+
+    .celebration-quote {
+      font-size: 0.95rem;
+      color: var(--ivory-dim);
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 26px;
+      border-top: 1px solid var(--gray-border);
+      border-bottom: 1px solid var(--gray-border);
+      padding: 12px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== 1. شاشة البداية ==================== -->
+  <section id="start-screen">
+    <div class="start-container">
+      <div class="emblem-icon">
+        <!-- أيقونة مستوحاة من محطة نووية بالذهب المطفأ -->
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        </svg>
+      </div>
+
+      <h1 class="start-title">مشغّلة المفاعل</h1>
+      <p class="start-subtitle">Nuclear Operator</p>
+      
+      <p class="start-desc">
+        مرحباً بكِ في غرفة التحكم بمحطة الطاقة النووية. مهمتكِ اليوم هي إدارة المفاعل، موازنة الحرارة والنشاط النيوتروني، وتأمين الكهرباء النظيفة لإضاءة <strong>مدينة جدة</strong>.
+      </p>
+
+      <div class="input-group">
+        <label for="operator-name-input" class="input-label">اسم المشغّلة (اختياري)</label>
+        <input type="text" id="operator-name-input" class="operator-input" placeholder="اكتبي اسمكِ أو لقبكِ هنا..." maxlength="25">
+      </div>
+
+      <button id="btn-enter" class="btn-gold">دخول غرفة التحكم</button>
+    </div>
+  </section>
+
+  <!-- ==================== 2. غرفة التحكم الرئيسية ==================== -->
+  <main id="control-room">
+    <!-- الشريط العلوي -->
+    <header class="top-bar">
+      <div class="operator-badge">
+        <div class="badge-avatar" id="avatar-display">م</div>
+        <div class="operator-info">
+          <h3 id="operator-name-display">المشغّلة</h3>
+          <p>محطة جدة للطاقة النووية الافتراضية</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="btn-pause" class="btn-icon">
+          <span id="pause-text">إيقاف مؤقت</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- بطاقة الإرشاد والحدث الحالي -->
+    <section class="briefing-card" id="briefing-box">
+      <div class="briefing-header">
+        <span class="briefing-tag" id="briefing-phase-tag">المرحلة 1 من 4 : تشغيل المفاعل</span>
+        <span class="step-counter" id="step-tag">الخطوة الحالية</span>
+      </div>
+      <div class="briefing-text" id="briefing-main-text">
+        مرحباً بكِ! المفاعل حالياً في حالة إيقاف آمنة. ابدئي بسحب قضبان التحكم للسماح ببدء التفاعل المتسلسل.
+      </div>
+      <div class="briefing-subtext" id="briefing-detail-text">
+        قضبان التحكم تمتص النيوترونات. عند سحبها إلى نسبة بين (55% - 70%)، يقل الامتصاص ونصل إلى مرحلة «حرج المستقر».
+      </div>
+      <div class="briefing-feedback" id="action-feedback"></div>
+    </section>
+
+    <!-- شبكة التفاعل والمؤشرات -->
+    <div class="control-grid">
+      
+      <!-- اللوحة البصرية للمفاعل -->
+      <section class="reactor-visual-panel">
+        <div class="panel-title">
+          <span>مقطع قلب المفاعل (Reactor Core)</span>
+          <span id="core-state-badge" style="font-size:0.75rem; color:var(--gold-light);">تفاعل متسلسل خامل</span>
+        </div>
+
+        <div class="vessel-svg-wrap">
+          <svg viewBox="0 0 300 240" class="reactor-svg" style="width:100%; height:100%;">
+            <!-- وعاء الضغط الفولاذي -->
+            <rect x="40" y="20" width="220" height="200" rx="28" fill="#241620" stroke="#7A5B2B" stroke-width="4"/>
+            <rect x="52" y="32" width="196" height="176" rx="20" fill="#1C1018" stroke="#4D3D46" stroke-width="2"/>
+
+            <!-- قنوات التبريد (تدفق مائي توضيحي) -->
+            <path d="M 60 70 Q 150 60 240 70" fill="none" stroke="#6E755D" stroke-width="2" stroke-dasharray="6,4" opacity="0.6"/>
+            <path d="M 60 170 Q 150 180 240 170" fill="none" stroke="#6E755D" stroke-width="2" stroke-dasharray="6,4" opacity="0.6"/>
+
+            <!-- قضبان الوقود النووي (Fuel Rods) - ثابتة -->
+            <g id="fuel-rods">
+              <rect x="80" y="70" width="16" height="115" rx="4" fill="#695D56" stroke="#C5A059" stroke-width="1.5"/>
+              <rect x="115" y="70" width="16" height="115" rx="4" fill="#695D56" stroke="#C5A059" stroke-width="1.5"/>
+              <rect x="150" y="70" width="16" height="115" rx="4" fill="#695D56" stroke="#C5A059" stroke-width="1.5"/>
+              <rect x="185" y="70" width="16" height="115" rx="4" fill="#695D56" stroke="#C5A059" stroke-width="1.5"/>
+              <rect x="220" y="70" width="16" height="115" rx="4" fill="#695D56" stroke="#C5A059" stroke-width="1.5"/>
+            </g>
+
+            <!-- توهج النواة التفاعلي (Warm Amber Glow) -->
+            <circle id="core-glow" cx="150" cy="128" r="65" fill="url(#coreGlowGradient)" opacity="0.15" />
+
+            <!-- قضبان التحكم (Control Rods) - تتحرك للأعلى والأسفل برمجياً -->
+            <g id="control-rods-group" style="transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);">
+              <!-- رأس القضبان العلوي -->
+              <rect x="70" y="24" width="176" height="10" rx="3" fill="#8E3661" stroke="#DFC07E" stroke-width="1"/>
+              <!-- أذرع القضبان الماصة للنيوترونات -->
+              <rect x="98" y="34" width="14" height="120" rx="3" fill="#4A1828" stroke="#DFC07E" stroke-width="1.5"/>
+              <rect x="133" y="34" width="14" height="120" rx="3" fill="#4A1828" stroke="#DFC07E" stroke-width="1.5"/>
+              <rect x="168" y="34" width="14" height="120" rx="3" fill="#4A1828" stroke="#DFC07E" stroke-width="1.5"/>
+              <rect x="203" y="34" width="14" height="120" rx="3" fill="#4A1828" stroke="#DFC07E" stroke-width="1.5"/>
+            </g>
+
+            <defs>
+              <radialGradient id="coreGlowGradient">
+                <stop offset="0%" stop-color="#DFC07E" stop-opacity="0.9"/>
+                <stop offset="60%" stop-color="#C5A059" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#2D1A25" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+          </svg>
+        </div>
+        <p style="font-size:0.75rem; color:var(--gray-text); margin-top:6px;">
+          القضبان العنابية الموشحة بالذهب: قضبان التحكم الماصة | القضبان الرصاصية: وقود المفاعل
+        </p>
+      </section>
+
+      <!-- المؤشرات الرقمية الستة (كل مؤشر منفصل بوضوح) -->
+      <section class="indicators-grid">
+        
+        <!-- 1. حالة التفاعل المتسلسل (الحرجية) -->
+        <div class="indicator-card" id="card-criticality">
+          <div class="ind-title">
+            <span>الحرجية (Criticality)</span>
+          </div>
+          <div class="ind-value" id="val-criticality">دون الحرج</div>
+          <div class="ind-status status-subcritical" id="status-criticality">k &lt; 1.0 (ممتص)</div>
+        </div>
+
+        <!-- 2. النشاط النيوتروني -->
+        <div class="indicator-card" id="card-flux">
+          <div class="ind-title">
+            <span>النشاط النيوتروني (Flux)</span>
+          </div>
+          <div class="ind-value"><span id="val-flux">5</span><span class="ind-unit">%</span></div>
+          <div class="ind-status" id="status-flux">مستوى نيوترونات منخفض</div>
+        </div>
+
+        <!-- 3. القدرة الكهربائية المنتجة -->
+        <div class="indicator-card" id="card-power">
+          <div class="ind-title">
+            <span>القدرة المنتجة (Power)</span>
+          </div>
+          <div class="ind-value"><span id="val-power">0</span><span class="ind-unit">ميجاواط</span></div>
+          <div class="ind-status" id="status-power">التوليد متوقف</div>
+        </div>
+
+        <!-- 4. طلب مدينة جدة -->
+        <div class="indicator-card" id="card-demand">
+          <div class="ind-title">
+            <span>طلب مدينة جدة</span>
+          </div>
+          <div class="ind-value"><span id="val-demand">850</span><span class="ind-unit">ميجاواط</span></div>
+          <div class="ind-status" id="status-demand" style="color:var(--gold-light);">بانتظار الربط بالشبكة</div>
+        </div>
+
+        <!-- 5. درجة حرارة قلب المفاعل -->
+        <div class="indicator-card" id="card-temp">
+          <div class="ind-title">
+            <span>حرارة القلب (Core Temp)</span>
+          </div>
+          <div class="ind-value"><span id="val-temp">160</span><span class="ind-unit">°م</span></div>
+          <div class="ind-status status-cold" id="status-temp">نطاق التشغيل البارد</div>
+        </div>
+
+        <!-- 6. نظام التبريد -->
+        <div class="indicator-card" id="card-cooling">
+          <div class="ind-title">
+            <span>تدفق التبريد (Cooling)</span>
+          </div>
+          <div class="ind-value"><span id="val-cooling">40</span><span class="ind-unit">%</span></div>
+          <div class="ind-status" id="status-cooling" style="color:var(--olive-light);">مضخات التبريد جاهزة</div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- لوحة اتخاذ القرارات والتحكم -->
+    <section class="controls-panel">
+      
+      <!-- التحكم بقضبان التحكم -->
+      <div class="control-row">
+        <div class="control-label-wrap">
+          <span class="control-name">موضع قضبان التحكم (Control Rods Position):</span>
+          <span class="control-reading" id="rods-percent-label">مدخلة بالكامل (100%)</span>
+        </div>
+        <div class="slider-container">
+          <button class="btn-step" id="btn-rod-insert" title="إدخال القضبان (خفض التفاعل)">+</button>
+          <input type="range" id="rod-slider" class="custom-range" min="0" max="100" value="100" step="5">
+          <button class="btn-step" id="btn-rod-withdraw" title="سحب القضبان (زيادة التفاعل)">−</button>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--gray-text);">
+          <span>0% (مسحوبة تماماً - أقصى تفاعل)</span>
+          <span>100% (مدخلة تماماً - امتصاص كامل)</span>
+        </div>
+      </div>
+
+      <!-- التحكم بنظام التبريد -->
+      <div class="control-row">
+        <div class="control-label-wrap">
+          <span class="control-name">معدل تدفق مضخات التبريد (Coolant Pumps Flow):</span>
+          <span class="control-reading" id="cooling-percent-label">تدفق أساسي (40%)</span>
+        </div>
+        <div class="slider-container">
+          <button class="btn-step" id="btn-cool-down" title="خفض التبريد">−</button>
+          <input type="range" id="cool-slider" class="custom-range" min="20" max="100" value="40" step="5">
+          <button class="btn-step" id="btn-cool-up" title="زيادة التبريد">+</button>
+        </div>
+      </div>
+
+      <!-- منطقة تأكيد القرار والإيقاف الطارئ -->
+      <div class="action-button-area">
+        <button id="btn-confirm" class="btn-confirm-action pulse">
+          <span>تأكيد الإجراء وتنفيذ المحاكاة</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+
+        <div class="scram-container">
+          <div class="scram-text">
+            <strong>الإيقاف الطارئ السريع للمفاعل (SCRAM)</strong>
+            <span>إسقاط فوري لكامل قضبان التحكم وامتصاص النيوترونات</span>
+          </div>
+          <button id="btn-scram" class="btn-scram">زر SCRAM</button>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ==================== 4. نافذة توضيح الإيقاف الطارئ (SCRAM) ==================== -->
+  <div class="modal-overlay" id="scram-modal">
+    <div class="modal-card">
+      <h3 class="modal-title">تم تنفيذ الإيقاف السريع (SCRAM)</h3>
+      <div class="modal-body">
+        <p>سقطت كافة قضبان التحكم فوراً إلى قلب المفاعل، مما أدى إلى <strong>امتصاص النيوترونات وتوقف التفاعل المتسلسل الانشطاري فوراً</strong>.</p>
+        <br>
+        <p><strong>ملاحظة فيزيائية هامة:</strong><br>
+        ستلاحظين أن القدرة والحرارة لا تهبطان إلى الصفر فوراً! بل تبقى ما يسمى <strong>«الحرارة المتبقية (Decay Heat)»</strong> الناتجة عن التحلل الإشعاعي الطبيعي لنواتج الانشطار السابقة، ولهذا يبقى نظام التبريد مستمراً في عمله لحماية قلب المفاعل.</p>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-close-scram" class="btn-gold" style="padding:12px;">استئناف التشغيل ومتابعة المهمة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 5. شاشة الاحتفال وإضاءة مدينة جدة ==================== -->
+  <section id="celebration-screen">
+    <div class="celebration-container">
+      <h2 class="celebration-title">أحسنتِ يا بطلة الطاقة!</h2>
+      <p class="celebration-operator" id="congrats-name">المشغّلة المتميزة</p>
+
+      <!-- رسم أفق جدة ليضيء في الاحتفال -->
+      <div class="jeddah-skyline-wrap">
+        <svg viewBox="0 0 500 190" class="jeddah-svg" preserveAspectRatio="none">
+          <!-- سماء ليلية دافئة بلون العنابي العميق -->
+          <rect width="500" height="190" fill="#201119" />
+
+          <!-- أمواج بحر كورنيش جدة -->
+          <path d="M 0 160 Q 125 150 250 160 T 500 160 L 500 190 L 0 190 Z" fill="#2D1724" />
+          <path d="M 0 170 Q 125 162 250 170 T 500 170 L 500 190 L 0 190 Z" fill="#3B1E2F" opacity="0.8" />
+
+          <!-- مباني وأبراج أفق مدينة جدة (ظلال) -->
+          <g fill="#432637" stroke="#7A5B2B" stroke-width="0.5">
+            <!-- برج 1 -->
+            <rect x="50" y="80" width="30" height="85" rx="2" />
+            <!-- مبنى رواشين تراثي حديث -->
+            <rect x="90" y="105" width="45" height="60" rx="1" />
+            <!-- برج أيقوني مدبب (رمز أبراج الكورنيش) -->
+            <polygon points="170,165 190,40 210,165" />
+            <!-- مباني متفرقة -->
+            <rect x="220" y="90" width="25" height="75" />
+            <rect x="255" y="115" width="35" height="50" />
+            <!-- مجسم هندسي من ميادين جدة -->
+            <polygon points="310,165 325,120 340,165" fill="#5E364D"/>
+            <!-- برج الكورنيش الشمالي -->
+            <rect x="360" y="65" width="32" height="100" rx="3" />
+            <rect x="405" y="95" width="45" height="70" />
+          </g>
+
+          <!-- نافورة الملك فهد الأيقونية بجدة (تنطلق مع الإضاءة) -->
+          <g id="jeddah-fountain" opacity="0" style="transition: opacity 1.5s ease-in-out;">
+            <!-- عمود الماء المضاء بالذهب -->
+            <path d="M 145 165 Q 146 15 148 10 Q 150 15 151 165" fill="none" stroke="#DFC07E" stroke-width="3" opacity="0.85"/>
+            <!-- رذاذ النافورة العلوي -->
+            <ellipse cx="148" cy="14" rx="22" ry="7" fill="#C5A059" opacity="0.7"/>
+            <path d="M 148 15 Q 120 60 115 155" fill="none" stroke="#DFC07E" stroke-width="1.2" opacity="0.5"/>
+            <path d="M 148 15 Q 176 60 181 155" fill="none" stroke="#DFC07E" stroke-width="1.2" opacity="0.5"/>
+          </g>
+
+          <!-- أضواء نوافذ أبراج جدة (تضيء بالذهب المطفأ الدافئ) -->
+          <g id="jeddah-lights" opacity="0" fill="#DFC07E" style="transition: opacity 1.2s ease-in-out;">
+            <!-- نافورة أضواء -->
+            <circle cx="58" cy="95" r="2"/> <circle cx="68" cy="95" r="2"/>
+            <circle cx="58" cy="115" r="2"/> <circle cx="68" cy="115" r="2"/>
+            <circle cx="58" cy="135" r="2"/> <circle cx="68" cy="135" r="2"/>
+            
+            <circle cx="100" cy="120" r="1.5"/> <circle cx="115" cy="120" r="1.5"/>
+            <circle cx="100" cy="135" r="1.5"/> <circle cx="115" cy="135" r="1.5"/>
+            
+            <line x1="190" y1="50" x2="190" y2="150" stroke="#DFC07E" stroke-width="2"/>
+            
+            <circle cx="370" cy="80" r="2"/> <circle cx="382" cy="80" r="2"/>
+            <circle cx="370" cy="100" r="2"/> <circle cx="382" cy="100" r="2"/>
+            <circle cx="370" cy="120" r="2"/> <circle cx="382" cy="120" r="2"/>
+
+            <circle cx="415" cy="110" r="1.8"/> <circle cx="430" cy="110" r="1.8"/>
+            <circle cx="415" cy="130" r="1.8"/> <circle cx="430" cy="130" r="1.8"/>
+
+            <!-- انعكاس ذهبي على ماء الكورنيش -->
+            <ellipse cx="250" cy="175" rx="180" ry="4" fill="#DFC07E" opacity="0.35"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="stats-summary">
+        <div class="stat-box">
+          <div class="stat-label">الطاقة النظيفة المزودة</div>
+          <div class="stat-num">850 ميجاواط</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">استقرار الشبكة بجدة</div>
+          <div class="stat-num" style="color:var(--olive-light);">100% مثالي</div>
+        </div>
+      </div>
+
+      <p class="celebration-quote">
+        «أحسنتِ! نجحتِ في إدارة المفاعل وتحقيق التوازن الدقيق بين النشاط النيوتروني والتبريد، ووفرتِ الطاقة الكهربائية النظيفة والموثوقة لمدينة جدة بنجاح باهر».
+      </p>
+
+      <button id="btn-restart" class="btn-gold">إعادة خوض التجربة</button>
+    </div>
+  </section>
+
+  <!-- ==================== 6. منطق المحاكاة واللعب التفاعلي (JavaScript) ==================== -->
+  <script>
+    /**
+     * منطق محاكاة المفاعل النووي خطوة بخطوة (Turn & Action-Based Simulator)
+     * يتيح للمستخدمة التفكير، والتحكم بالأشرطة، ثم الضغط على "تأكيد الإجراء" لمشاهدة التغير.
+     */
+
+    // حالة المحاكاة
+    const state = {
+      operatorName: 'المشغّلة',
+      phase: 1, // المراحل من 1 إلى 4
+      isPaused: false,
+
+      // موضع عناصر التحكم
+      rodPosition: 100, // 100% = مدخلة بالكامل (أقصى امتصاص)، 0% = مسحوبة تماماً
+      coolingFlow: 40,  // % معدل التبريد
+
+      // المؤشرات الفيزيائية للمفاعل
+      criticality: 'دون الحرج', // 'دون الحرج' | 'حرج (مستقر)' | 'فوق الحرج'
+      flux: 5,                  // % النشاط النيوتروني
+      power: 0,                 // ميجاواط القدرة الكهربائية
+      demand: 850,              // ميجاواط طلب جدة
+      coreTemp: 160,            // مئوية درجة حرارة القلب
+      scramActive: false
+    };
+
+    // عناصر الواجهة
+    const dom = {
+      startScreen: document.getElementById('start-screen'),
+      controlRoom: document.getElementById('control-room'),
+      celebrationScreen: document.getElementById('celebration-screen'),
+      scramModal: document.getElementById('scram-modal'),
+
+      // إدخال وتسمية
+      nameInput: document.getElementById('operator-name-input'),
+      nameDisplay: document.getElementById('operator-name-display'),
+      avatarDisplay: document.getElementById('avatar-display'),
+      congratsName: document.getElementById('congrats-name'),
+
+      // أزرار رئيسية
+      btnEnter: document.getElementById('btn-enter'),
+      btnConfirm: document.getElementById('btn-confirm'),
+      btnScram: document.getElementById('btn-scram'),
+      btnCloseScram: document.getElementById('btn-close-scram'),
+      btnRestart: document.getElementById('btn-restart'),
+      btnPause: document.getElementById('btn-pause'),
+      pauseText: document.getElementById('pause-text'),
+
+      // إرشادات المهمة
+      briefingBox: document.getElementById('briefing-box'),
+      phaseTag: document.getElementById('briefing-phase-tag'),
+      stepTag: document.getElementById('step-tag'),
+      mainText: document.getElementById('briefing-main-text'),
+      detailText: document.getElementById('briefing-detail-text'),
+      feedbackBox: document.getElementById('action-feedback'),
+
+      // أشرطة وعناصر التحكم
+      rodSlider: document.getElementById('rod-slider'),
+      coolSlider: document.getElementById('cool-slider'),
+      rodsLabel: document.getElementById('rods-percent-label'),
+      coolingLabel: document.getElementById('cooling-percent-label'),
+      btnRodInsert: document.getElementById('btn-rod-insert'),
+      btnRodWithdraw: document.getElementById('btn-rod-withdraw'),
+      btnCoolUp: document.getElementById('btn-cool-up'),
+      btnCoolDown: document.getElementById('btn-cool-down'),
+
+      // المؤشرات الرقمية
+      valCriticality: document.getElementById('val-criticality'),
+      statusCriticality: document.getElementById('status-criticality'),
+      valFlux: document.getElementById('val-flux'),
+      statusFlux: document.getElementById('status-flux'),
+      valPower: document.getElementById('val-power'),
+      statusPower: document.getElementById('status-power'),
+      valDemand: document.getElementById('val-demand'),
+      statusDemand: document.getElementById('status-demand'),
+      valTemp: document.getElementById('val-temp'),
+      statusTemp: document.getElementById('status-temp'),
+      valCooling: document.getElementById('val-cooling'),
+      statusCooling: document.getElementById('status-cooling'),
+
+      // بطاقات المؤشرات (لتغيير الألوان التحذيرية)
+      cardCriticality: document.getElementById('card-criticality'),
+      cardPower: document.getElementById('card-power'),
+      cardTemp: document.getElementById('card-temp'),
+
+      // الرسوم البصرية
+      controlRodsGroup: document.getElementById('control-rods-group'),
+      coreGlow: document.getElementById('core-glow'),
+      coreStateBadge: document.getElementById('core-state-badge'),
+      jeddahLights: document.getElementById('jeddah-lights'),
+      jeddahFountain: document.getElementById('jeddah-fountain')
+    };
+
+    // ==================== مهام المراحل التعليمية ====================
+    const phases = {
+      1: {
+        phaseTag: 'المرحلة 1 من 4 : تشغيل المفاعل والوصول للحرجية',
+        stepTag: 'الهدف: تحقيق تفاعل مستقر',
+        mainText: 'المفاعل حالياً في حالة سكون. ابدئي بسحب قضبان التحكم للسماح ببدء التفاعل المتسلسل.',
+        detailText: '«معلومة: قضبان التحكم تمتص النيوترونات. عند سحبها يقل الامتصاص». اضبطي موضع القضبان بين (60% و 70%) ثم اضغطي (تأكيد الإجراء).',
+        validate: () => state.rodPosition >= 55 && state.rodPosition <= 72,
+        feedbackSuccess: 'رائع جداً! سحبتِ القضبان فقلّ امتصاص النيوترونات، ووصل المفاعل لحالة «الحرجية المستقرة (Critical)».',
+        feedbackHint: 'تحتاجين لسحب القضبان قليلاً (اجعلي النسبة بين 60% و 70%) ثم أكدي الإجراء.'
+      },
+      2: {
+        phaseTag: 'المرحلة 2 من 4 : رفع النشاط النيوتروني وتوليد القدرة',
+        stepTag: 'الهدف: مواكبة طلب مدينة جدة',
+        mainText: 'وصلنا للحرجية، والآن مدينة جدة تحتاج إلى 850 ميجاواط من الكهرباء لتشغيل أحيائها ومرافقها.',
+        detailText: 'اسحبي قضبان التحكم أكثر نحو (30% إلى 45%) لرفع التدفق النيوتروني والحرارة لتوليد القدرة المطلوبة، ثم اضغطي (تأكيد الإجراء).',
+        validate: () => state.rodPosition >= 28 && state.rodPosition <= 48,
+        feedbackSuccess: 'ممتاز! ارتفع النشاط النيوتروني، وبدأ التوربين بتوليد الكهرباء ومطابقة طلب شبكة مدينة جدة.',
+        feedbackHint: 'اسحبي القضبان أكثر (بين 30% و 45%) لتوليد طاقة كافية تعادل احتياج جدة.'
+      },
+      3: {
+        phaseTag: 'المرحلة 3 من 4 : التوازن الحراري ونظام التبريد',
+        stepTag: 'الهدف: استقرار حرارة قلب المفاعل',
+        mainText: 'مع ارتفاع التوليد، بدأت حرارة القلب ترتفع نحو 330°م! نحتاج لتفعيل التبريد بكفاءة.',
+        detailText: '«معلومة: التبريد ينقل الطاقة الحرارية ويحمي القلب». ارفعي تدفق التبريد بين (75% و 90%) لحفظ الحرارة في النطاق الآمن (280°م - 305°م).',
+        validate: () => state.coolingFlow >= 70 && state.coolingFlow <= 95,
+        feedbackSuccess: 'استجابة هندسية متقنة! التبريد نقل الحرارة بفاعلية واستقرت حرارة القلب في النطاق الذهبي الآمن.',
+        feedbackHint: 'ارفعي مؤشر تدفق التبريد ليكون بين 75% و 90% ثم اضغطي تأكيد الإجراء لتبريد القلب.'
+      },
+      4: {
+        phaseTag: 'المرحلة 4 من 4 : الربط النهائي بالشبكة',
+        stepTag: 'الهدف: إمداد جدة بالطاقة',
+        mainText: 'جميع مؤشرات المفاعل الآن في تناغم تام: الحرجية مستقرة، والحرارة متوازنة، والقدرة تلبي الطلب.',
+        detailText: 'اضغطي على زر (تأكيد الإجراء) لإتمام ربط المحطة بشبكة مدينة جدة وإضاءة المدينة بالكامل احتفالاً بنجاحكِ!',
+        validate: () => true,
+        feedbackSuccess: 'اكتملت المهمة بنجاح أسطوري!',
+        feedbackHint: ''
+      }
+    };
+
+    // ==================== التهيئة والأحداث ====================
+
+    // دخول غرفة التحكم من شاشة البداية
+    dom.btnEnter.addEventListener('click', () => {
+      const name = dom.nameInput.value.trim();
+      if (name) {
+        state.operatorName = name;
+        dom.nameDisplay.textContent = name;
+        dom.avatarDisplay.textContent = name.charAt(0);
+        dom.congratsName.textContent = `المشغّلة المتميزة: ${name}`;
+      }
+      dom.startScreen.style.display = 'none';
+      dom.controlRoom.style.display = 'flex';
+      updateUI();
+    });
+
+    // أحداث أشرطة السحب
+    dom.rodSlider.addEventListener('input', (e) => {
+      state.rodPosition = parseInt(e.target.value, 10);
+      updateRodsVisualOnly();
+    });
+
+    dom.coolSlider.addEventListener('input', (e) => {
+      state.coolingFlow = parseInt(e.target.value, 10);
+      dom.coolingLabel.textContent = `تدفق (${state.coolingFlow}%)`;
+    });
+
+    // أزرار الخطوات الدقيقة (+ / -) لتسهيل الاستخدام على شاشات اللمس
+    dom.btnRodInsert.addEventListener('click', () => {
+      state.rodPosition = Math.min(100, state.rodPosition + 5);
+      dom.rodSlider.value = state.rodPosition;
+      updateRodsVisualOnly();
+    });
+
+    dom.btnRodWithdraw.addEventListener('click', () => {
+      state.rodPosition = Math.max(0, state.rodPosition - 5);
+      dom.rodSlider.value = state.rodPosition;
+      updateRodsVisualOnly();
+    });
+
+    dom.btnCoolUp.addEventListener('click', () => {
+      state.coolingFlow = Math.min(100, state.coolingFlow + 5);
+      dom.coolSlider.value = state.coolingFlow;
+      dom.coolingLabel.textContent = `تدفق (${state.coolingFlow}%)`;
+    });
+
+    dom.btnCoolDown.addEventListener('click', () => {
+      state.coolingFlow = Math.max(20, state.coolingFlow - 5);
+      dom.coolSlider.value = state.coolingFlow;
+      dom.coolingLabel.textContent = `تدفق (${state.coolingFlow}%)`;
+    });
+
+    // زر تأكيد الإجراء وتنفيذ المحاكاة
+    dom.btnConfirm.addEventListener('click', () => {
+      if (state.isPaused) return;
+      executeSimulationStep();
+    });
+
+    // زر الإيقاف الطارئ SCRAM
+    dom.btnScram.addEventListener('click', () => {
+      triggerSCRAM();
+    });
+
+    dom.btnCloseScram.addEventListener('click', () => {
+      dom.scramModal.style.display = 'none';
+      recoverFromScram();
+    });
+
+    // زر إيقاف مؤقت واستئناف
+    dom.btnPause.addEventListener('click', () => {
+      state.isPaused = !state.isPaused;
+      if (state.isPaused) {
+        dom.pauseText.textContent = 'استئناف اللعب';
+        dom.btnConfirm.style.opacity = '0.5';
+        dom.btnConfirm.style.pointerEvents = 'none';
+      } else {
+        dom.pauseText.textContent = 'إيقاف مؤقت';
+        dom.btnConfirm.style.opacity = '1';
+        dom.btnConfirm.style.pointerEvents = 'auto';
+      }
+    });
+
+    // إعادة اللعب
+    dom.btnRestart.addEventListener('click', () => {
+      location.reload();
+    });
+
+    // ==================== منطق المحاكاة والقرارات ====================
+
+    function updateRodsVisualOnly() {
+      // تحديث مسمى الموضع
+      if (state.rodPosition >= 90) {
+        dom.rodsLabel.textContent = `مدخلة بالكامل تقريباً (${state.rodPosition}%)`;
+      } else if (state.rodPosition <= 15) {
+        dom.rodsLabel.textContent = `مسحوبة بالكامل تقريباً (${state.rodPosition}%)`;
+      } else {
+        dom.rodsLabel.textContent = `إدخال جزئي (${state.rodPosition}%)`;
+      }
+
+      // تحريك قضبان التحكم برمجياً في رسم الـ SVG
+      // عند 100% تكون نازلة في القلب (translateY: 45px)، عند 0% مرتفعة للأعلى (translateY: -35px)
+      const translateY = ((state.rodPosition - 50) / 50) * 40;
+      dom.controlRodsGroup.setAttribute('transform', `translate(0, ${translateY})`);
+    }
+
+    function executeSimulationStep() {
+      const current = phases[state.phase];
+      const isSuccessful = current.validate();
+
+      // حسابات المحاكاة المنطقية بناء على المدخلات
+      calculatePhysics();
+
+      if (isSuccessful) {
+        // عرض التغذية الراجعة الإيجابية
+        dom.feedbackBox.style.display = 'block';
+        dom.feedbackBox.style.borderRightColor = 'var(--olive-muted)';
+        dom.feedbackBox.innerHTML = `<strong>إجراء صحيح:</strong> ${current.feedbackSuccess}`;
+
+        // الانتقال للمرحلة التالية بعد لحظة تأمل مريحة
+        setTimeout(() => {
+          if (state.phase < 4) {
+            state.phase++;
+            loadPhase(state.phase);
+          } else {
+            // الوصول للنهاية السعيدة
+            triggerCelebration();
+          }
+        }, 1400);
+
+      } else {
+        // إرشاد في حال عدم مطابقة الهدف دون أي خسارة مفاجئة
+        dom.feedbackBox.style.display = 'block';
+        dom.feedbackBox.style.borderRightColor = 'var(--gold-muted)';
+        dom.feedbackBox.innerHTML = `<strong>توجيه:</strong> ${current.feedbackHint}`;
+      }
+
+      updateUI();
+    }
+
+    function calculatePhysics() {
+      // 1. تحديد حالة الحرجية بناء على موضع قضبان التحكم
+      if (state.rodPosition > 75) {
+        state.criticality = 'دون الحرج';
+        state.flux = Math.max(5, Math.round((100 - state.rodPosition) * 0.8));
+      } else if (state.rodPosition >= 25 && state.rodPosition <= 75) {
+        state.criticality = 'حرج (مستقر)';
+        state.flux = Math.round(10 + ((75 - state.rodPosition) / 50) * 75);
+      } else {
+        state.criticality = 'فوق الحرج';
+        state.flux = Math.min(100, Math.round(85 + (25 - state.rodPosition) * 0.8));
+      }
+
+      // 2. القدرة الكهربائية تتبع النشاط النيوتروني
+      if (state.criticality === 'دون الحرج') {
+        state.power = Math.round(state.flux * 3);
+      } else {
+        state.power = Math.round(state.flux * 9.8);
+      }
+
+      // 3. درجة الحرارة تتأثر طردياً بالقدرة وعكسياً بكفاءة التبريد
+      const baseThermal = 160 + (state.power * 0.22);
+      const coolingEffect = (state.coolingFlow - 40) * 1.1;
+      state.coreTemp = Math.max(160, Math.round(baseThermal - coolingEffect));
+    }
+
+    function loadPhase(phaseNum) {
+      const p = phases[phaseNum];
+      dom.phaseTag.textContent = p.phaseTag;
+      dom.stepTag.textContent = p.stepTag;
+      dom.mainText.textContent = p.mainText;
+      dom.detailText.textContent = p.detailText;
+      dom.feedbackBox.style.display = 'none';
+
+      // في المرحلة 3، نرفع الحرارة ليتعلم المستخدم التحكم بالتبريد
+      if (phaseNum === 3) {
+        state.coreTemp = 328;
+      }
+
+      updateUI();
+    }
+
+    function updateUI() {
+      updateRodsVisualOnly();
+
+      // تحديث قراءة الحرجية
+      dom.valCriticality.textContent = state.criticality;
+      if (state.criticality === 'دون الحرج') {
+        dom.statusCriticality.textContent = 'امتصاص نيوتروني مرتفع';
+        dom.statusCriticality.className = 'ind-status status-subcritical';
+        dom.coreGlow.style.opacity = '0.1';
+        dom.coreStateBadge.textContent = 'تفاعل متسلسل خامل';
+      } else if (state.criticality === 'حرج (مستقر)') {
+        dom.statusCriticality.textContent = 'معدل التفاعل متوازن (k = 1.0)';
+        dom.statusCriticality.className = 'ind-status status-critical';
+        dom.coreGlow.style.opacity = '0.4';
+        dom.coreStateBadge.textContent = 'حرجية مستقرة - توليد منتظم';
+      } else {
+        dom.statusCriticality.textContent = 'تزايد نيوتروني نشط';
+        dom.statusCriticality.className = 'ind-status status-supercritical';
+        dom.coreGlow.style.opacity = '0.7';
+        dom.coreStateBadge.textContent = 'نشاط تفاعلي مرتفع';
+      }
+
+      // تحديث النشاط النيوتروني
+      dom.valFlux.textContent = state.flux;
+      dom.statusFlux.textContent = state.flux > 70 ? 'تدفق حراري نشط' : 'مستوى نيوتروني طبيعي';
+
+      // تحديث القدرة الكهربائية
+      dom.valPower.textContent = state.power;
+      if (state.power >= 800) {
+        dom.statusPower.textContent = 'تغذية كاملة لشبكة جدة';
+        dom.statusPower.style.color = 'var(--olive-light)';
+      } else if (state.power > 100) {
+        dom.statusPower.textContent = 'توليد جزئي تصاعدي';
+        dom.statusPower.style.color = 'var(--gold-light)';
+      } else {
+        dom.statusPower.textContent = 'التوليد متوقف';
+        dom.statusPower.style.color = 'var(--gray-text)';
+      }
+
+      // طلب جدة
+      dom.valDemand.textContent = state.demand;
+      const powerDiff = Math.abs(state.power - state.demand);
+      if (state.power >= 800 && powerDiff <= 80) {
+        dom.statusDemand.textContent = 'اكتفاء واستقرار بالشبكة';
+        dom.statusDemand.style.color = 'var(--olive-light)';
+      } else {
+        dom.statusDemand.textContent = `عجز بمقدار ${Math.max(0, state.demand - state.power)} م.و`;
+        dom.statusDemand.style.color = 'var(--gold-light)';
+      }
+
+      // درجة الحرارة
+      dom.valTemp.textContent = state.coreTemp;
+      if (state.coreTemp < 240) {
+        dom.statusTemp.textContent = 'نطاق التشغيل البارد';
+        dom.statusTemp.className = 'ind-status status-cold';
+      } else if (state.coreTemp <= 308) {
+        dom.statusTemp.textContent = 'النطاق التشغيلي الأمثل (آمن)';
+        dom.statusTemp.className = 'ind-status status-optimal';
+      } else {
+        dom.statusTemp.textContent = 'مرتفع نسبيًا - ارفعي التبريد';
+        dom.statusTemp.className = 'ind-status status-warm';
+      }
+
+      // نظام التبريد
+      dom.valCooling.textContent = state.coolingFlow;
+      dom.statusCooling.textContent = state.coolingFlow >= 70 ? 'معدل سحب حراري عالي' : 'تدفق تبريد اعتيادي';
+    }
+
+    // الإيقاف السريع SCRAM وشرح الحرارة المتبقية
+    function triggerSCRAM() {
+      state.scramActive = true;
+      // إسقاط فوري لكامل القضبان 100%
+      state.rodPosition = 100;
+      dom.rodSlider.value = 100;
+      updateRodsVisualOnly();
+
+      // توقف فوري للتفاعل المتسلسل
+      state.criticality = 'دون الحرج (موقوف SCRAM)';
+      state.flux = 2; // يتبقى فقط نيوترونات المصدر
+
+      // القدرة والحرارة لا تنزلان للصفر فوراً بسبب الحرارة المتبقية (Decay Heat)
+      state.power = 38; // طاقة الاضمحلال فقط
+      state.coreTemp = Math.max(190, state.coreTemp - 40);
+
+      updateUI();
+      dom.scramModal.style.display = 'flex';
+    }
+
+    function recoverFromScram() {
+      // استعادة الوضع لمتابعة المرحلة التي كانت فيها
+      state.scramActive = false;
+      loadPhase(state.phase);
+    }
+
+    // الاحتفال وإضاءة مدينة جدة
+    function triggerCelebration() {
+      dom.celebrationScreen.style.display = 'flex';
+
+      // إضاءة نافورة الملك فهد وأبراج جدة تدريجياً
+      setTimeout(() => {
+        dom.jeddahLights.style.opacity = '1';
+        dom.jeddahFountain.style.opacity = '1';
+      }, 400);
+    }
+
+    // تشغيل المرحلة الأولى عند البدء
+    loadPhase(1);
+  </script>
+</body>
+</html>
